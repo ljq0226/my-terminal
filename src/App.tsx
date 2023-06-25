@@ -9,6 +9,13 @@ interface CommandList {
   [key: string]:
   { (): void } | { (arg: string): void }
 }
+interface FolderSysteamType {
+  id: number
+  title: string
+  content: any
+  childIds?: []
+  parentId: number
+}
 const CURRENTID = 'currentId'
 const CURRENTFOLDERID = 'currentFolderId'
 const CURRENTCHILDIDS = 'currentChildIds'
@@ -54,6 +61,11 @@ function App() {
   useEffect(() => {
     setStorage(CURRENTDIRECTORY, currentDirectory, false)
   }, [currentDirectory])
+  useEffect(() => {
+    const currentFolder = folderSysteam.get(`${currentFolderId}`) as FolderSysteamType
+    setStorage('currentFolderId', currentFolderId)
+    currentFolder.childIds && setStorage(CURRENTCHILDIDS, currentFolder.childIds)
+  }, [currentFolderId, folderSysteam])
   // 生成内容
   const generateRow = (row: JSX.Element) => {
     setContent(s => [...s, row])
