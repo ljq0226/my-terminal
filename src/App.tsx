@@ -3,10 +3,13 @@ import type { DragOptions } from '@neodrag/react'
 import { useRef, useState } from 'react'
 import { BottomBar, Row, TrafficLight } from './components'
 import { key } from './utils'
+import { FolderSystem } from './mock'
 
 function App() {
+  const [folderSysteam, setFolderSysteam] = useState(new Map(Object.entries(FolderSystem)))
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const draggableRef = useRef(null)
+
   const [content, setContent] = useState<JSX.Element[]>(
     [<Row
       id={0}
