@@ -1,14 +1,18 @@
 import { useDraggable } from '@neodrag/react'
 import type { DragOptions } from '@neodrag/react'
-import { useRef, useState } from 'react'
-import { BottomBar, CommandNotFound, Help, Row, TrafficLight } from './components'
-import { key } from './utils'
+import { useEffect, useRef, useState } from 'react'
+import { BottomBar, CommandNotFound, Help, NoSuchFileOrDirectory, Row, TrafficLight } from './components'
+import { getStorage, key, setStorage } from './utils'
 import { FolderSystem } from './mock'
 
 interface CommandList {
   [key: string]:
   { (): void } | { (arg: string): void }
 }
+const CURRENTID = 'currentId'
+const CURRENTFOLDERID = 'currentFolderId'
+const CURRENTCHILDIDS = 'currentChildIds'
+const CURRENTDIRECTORY = 'currentDirectory'
 function App() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [changeCount, setChangeCount] = useState<number>(0)
@@ -37,6 +41,19 @@ function App() {
     cancel: '.traffic-lights',
   }
   useDraggable(draggableRef, options)
+
+  // 初始化
+  useEffect(() => {
+    setCurrentId(0)
+    setCurrentDirectory('')
+    setCurrentFolderId(0)
+  }, [])
+  useEffect(() => {
+    setStorage(CURRENTID, currentId)
+  }, [currentId])
+  useEffect(() => {
+    setStorage(CURRENTDIRECTORY, currentDirectory, false)
+  }, [currentDirectory])
   // 生成内容
   const generateRow = (row: JSX.Element) => {
     setContent(s => [...s, row])
@@ -44,14 +61,62 @@ function App() {
   const cat = () => {
 
   }
-  const cd = () => {
+  const searchFile = (arg: string) => {
+    // 对输入做一个优化，例如文件夹名为 Desktop,只要我们输入'Desktop'|'desktop'|'DESKTOP'都行
+    const args = [arg, arg.toUpperCase(), arg.toLowerCase(), arg.charAt(0).toUpperCase() + arg.slice(1)]
+    // 获取当前目录下子目录
+    const childIds = getStorage(CURRENTCHILDIDS)
+    // 遍历子目录，找到title 为 arg 的目录
+    for (const item of folderSysteam.entries()) {
+      if (childIds.includes(item[1].id) && args.includes(item[1].title))
+        return item[1].id
+    }
+  }
+  // cd 命令
+  const cd = (arg = '') => {
+    const dir: string = localStorage.getItem(CURRENTDIRECTORY) as string
+    if (!arg || arg === '..') {
+      // 处理文件路径
+      const dirArr = dir.split('/')
+      dirArr.length = Math.max(0, dirArr.length - 2)
+      if (!dirArr.length)
+        setCurrentDirectory(`${dirArr.join('')}`)
+      else
+        setCurrentDirectory(`${dirArr.join('')}/`)
+      // 处理当前文件夹
+      setCurrentFolderId(folderSysteam.get(`${currentFolderId}`)?.parentId as number)
+      return
+    }
 
+    const id = searchFile(arg)
+    // 如果子目录存在,设置路径、更新当前目录id
+    if (id) {
+      const res = `${dir + folderSysteam.get(`${id}`)?.title}/`
+      setCurrentFolderId(id)
+      setCurrentDirectory(res)
+    }
+    // 否则返回 NoSuchFileOrDirectory
+    else { generateRow(<NoSuchFileOrDirectory key={key()} command={arg}/>) }
   }
   const clear = () => {
 
   }
+  // ls 命令
   const ls = () => {
-
+    let res = ''
+    // 获取当前目录下所有子目录 id
+    const ids = getStorage(CURRENTCHILDIDS)
+    // 遍历 id 进行拼接
+    for (const id of ids)
+      res = `${res + folderSysteam.get(`${id}`)?.title} `
+    if (!res) {
+      generateRow(<div key={key()} >There are no other folders or files in the current directory.</div>)
+    }
+    else {
+      res.split(' ').map((item: string) =>
+        generateRow(<div key={key()} className={item.includes('.') ? 'text-primary' : ''}>{item}</div>),
+      )
+    }
   }
   // help 命令
   const help = () => {

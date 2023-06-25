@@ -1,3 +1,4 @@
+import React from 'react'
 import { Minimize2, Minus, X } from 'lucide-react'
 
 interface RowProps {
@@ -5,12 +6,14 @@ interface RowProps {
   onkeydown: (e: React.KeyboardEvent<HTMLInputElement>) => void
 }
 const Row: React.FC<RowProps> = ({ id, onkeydown }) => {
+  const currentId = Number.parseInt(JSON.parse(localStorage.getItem('currentId') as string))
+  const dir = localStorage.getItem('currentDirectory')
   return (
     <div className='flex flex-col w-full h-12'>
       <div>
         <span className="mr-2 text-yellow-400">funnycoder</span>
         <span className="mr-2 text-green-400">@macbook-pro</span>
-        <span className="mr-2 text-blue-400">~{}</span>
+        <span className="mr-2 text-blue-400">~{dir}</span>
         <span id={`terminal-currentDirectory-${id}`} className="mr-2 text-blue-400"></span>
       </div>
       <div className='flex'>
@@ -20,6 +23,7 @@ const Row: React.FC<RowProps> = ({ id, onkeydown }) => {
           id={`terminal-input-${id}`}
           autoComplete="off"
           autoFocus={true}
+          disabled={currentId !== id}
           className="flex-1 px-1 text-white bg-transparent outline-none"
           onKeyDown={onkeydown}
         />

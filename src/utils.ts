@@ -1,3 +1,11 @@
+function getStorage(info: string) {
+  return JSON.parse(localStorage.getItem(`${info}`) as string)
+}
+function setStorage(name: string, data: any, isStringify = true) {
+  if (isStringify)
+    localStorage.setItem(name, JSON.stringify(data))
+  else localStorage.setItem(name, (data))
+}
 // 生成随机字符作为 content 的 key
 function generateRandomString(length = 6) {
   let result = ''
@@ -9,4 +17,4 @@ function generateRandomString(length = 6) {
   return result
 }
 const key = generateRandomString
-export { key }
+export { getStorage, setStorage, key }
