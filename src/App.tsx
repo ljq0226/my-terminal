@@ -126,7 +126,7 @@ function App() {
     }
     else {
       res.split(' ').map((item: string) =>
-        generateRow(<div key={key()} className={item.includes('.') ? 'text-primary' : ''}>{item}</div>),
+        generateRow(<div key={key()} className={item.includes('.') ? 'text-blue-500' : ''}>{item}</div>),
       )
     }
   }
@@ -135,11 +135,43 @@ function App() {
     generateRow(<Help key={key()} />)
   }
 
-  const mkdir = () => {
-
+  // mkdir 命令
+  const mkdir = (arg = '') => {
+    const currentFolderId = getStorage(CURRENTFOLDERID)
+    const size = folderSysteam.size.toString()
+    // 创建新对象
+    const newFolderSysteam = folderSysteam.set(`${size}`, {
+      id: +size,
+      title: arg,
+      childIds: [],
+      parentId: currentFolderId,
+    })
+    // 更新 当前文件夹下的 childIds
+    const childIds = (folderSysteam.get(`${currentFolderId}`) as FolderSysteamType).childIds as number[]
+    childIds && childIds.push(+size)
+    setStorage(CURRENTCHILDIDS, childIds)
+    setFolderSysteam(newFolderSysteam)
   }
-  const touch = () => {
-
+  // touch 命令
+  const touch = (arg = '') => {
+    const currentFolderId = getStorage(CURRENTFOLDERID)
+    const size = folderSysteam.size.toString()
+    // 创建新对象
+    const newFolderSysteam = folderSysteam.set(`${size}`, {
+      id: +size,
+      title: arg,
+      content: <div ><h1>
+        This is <span className='text-red-400 underline'>{arg}</span> file!
+        </h1>
+        <p>Imagine there's a lot of content here...</p>
+        </div>,
+      parentId: currentFolderId,
+    })
+    // 更新 当前文件夹下的 childIds
+    const childIds = (folderSysteam.get(`${currentFolderId}`) as FolderSysteamType).childIds as number[]
+    childIds && childIds.push(+size)
+    setStorage(CURRENTCHILDIDS, childIds)
+    setFolderSysteam(newFolderSysteam)
   }
 
   const commandList: CommandList = {
