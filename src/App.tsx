@@ -66,6 +66,17 @@ function App() {
     setStorage('currentFolderId', currentFolderId)
     currentFolder.childIds && setStorage(CURRENTCHILDIDS, currentFolder.childIds)
   }, [currentFolderId, folderSysteam])
+
+  // 当按下上下键时 获取历史 command
+  useEffect(() => {
+    const input = document.querySelector(`#terminal-input-${commandHistory.length}`) as HTMLInputElement
+    if (commandHistory.length)
+      input.value = commandHistory[commandHistory.length + changeCount]
+    if (!changeCount) {
+      input.value = ''
+      setChangeCount(0)
+    }
+  }, [changeCount])
   // 生成内容
   const generateRow = (row: JSX.Element) => {
     setContent(s => [...s, row])
@@ -185,6 +196,21 @@ function App() {
     setFolderSysteam(newFolderSysteam)
   }
 
+  // 按向上🔼键
+  function handleArrowUp() {
+    setChangeCount(prev => Math.max(prev - 1, -commandHistory.length))
+  }
+  // 按向下🔽键
+  function handleArrowDown() {
+    setChangeCount(prev => Math.min(prev + 1, 0))
+  }
+
+  // 匹配历史 command 并补充
+  const matchCommand = (inputValue: string): string | null => {
+    // 遍历历史command 返回以当前输入 command 值开头(startsWith)的 command
+    const matchedCommands = commandHistory.filter(command => command.startsWith(inputValue))
+    return matchedCommands.length > 0 ? matchedCommands[matchedCommands.length - 1] : null
+  }
   const commandList: CommandList = {
     cat,
     cd,
@@ -200,10 +226,16 @@ function App() {
     const input = document.querySelector(`#terminal-input-${id}`) as HTMLInputElement
     const [cmd, args] = input.value.trim().split(' ')
     if (event.key === 'ArrowUp') {
+      handleArrowUp()
     }
     else if (event.key === 'ArrowDown') {
+      handleArrowDown()
     }
     else if (event.key === 'Tab') {
+      event.preventDefault()
+      const matchedCommand = matchCommand(input.value.trim())
+      if (matchedCommand)
+        input.value = matchedCommand
     }
     else if (event.key === 'Enter') {
       // 将新输入 command 加入 commandHistory 中
