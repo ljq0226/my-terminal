@@ -57,5 +57,57 @@ function BottomBar() {
     </div>
   )
 }
+function Help() {
+  return (
+    <ul key={Math.random().toString()} className="list-disc ml-6 pb-1.5">
+      <li>
+        <span className="text-purple-400">cat {'<file>'}</span> - See the content
+        of {'<file>'}
+      </li>
+      <li>
+        <span className="text-purple-400">cd {'<dir>'}</span> - Move into
+        {' <dir>'}, "cd" or"cd .." to move to the parent directory, "cd ~" to
+        return to root
+      </li>
+      <li>
+        <span className="text-purple-400">ls</span> - See files and directories
+        in the current directory
+      </li>
+      <li>
+        <span className="text-purple-400">clear</span> - Clear the screen
+      </li>
+      <li>
+        <span className="text-purple-400">help</span> - Display this help menu
+      </li>
+      <li>
+        <span className="text-purple-400">mkdir</span> - create a folder
+      </li>
+      <li>
+        <span className="text-purple-400">touch</span> - create a file
+      </li>
+      <li>
+        press <span className="text-purple-400">up arrow / down arrow</span> -
+        Select history commands
+      </li>
+      <li>
+        press <span className="text-purple-400">tab</span> - Auto complete
+      </li>
+    </ul>
+  )
+}
+const CommandNotFound: React.FC<{ command: string }> = ({ command }) => {
+  return (
+    <div className='flex w-full h-6'>
+      <span className="mr-2 text-red-400">zsh: command not found: <span className='text-purple-400'>{command}</span></span>
+    </div>
+  )
+}
+const NoSuchFileOrDirectory: React.FC<{ command: string }> = ({ command }) => {
+  return (
+    <div className='flex w-full h-6'>
+      <span className="mr-2 text-red-400">cd: no such file or directory:<span className='text-purple-400'>{command}</span></span>
+    </div>
+  )
+}
 
-export { TrafficLight, BottomBar, Row }
+export { CommandNotFound, NoSuchFileOrDirectory, Help, Row, TrafficLight, BottomBar }

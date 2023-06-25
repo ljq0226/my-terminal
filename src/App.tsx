@@ -1,13 +1,23 @@
 import { useDraggable } from '@neodrag/react'
 import type { DragOptions } from '@neodrag/react'
 import { useRef, useState } from 'react'
-import { BottomBar, Row, TrafficLight } from './components'
+import { BottomBar, CommandNotFound, Help, Row, TrafficLight } from './components'
 import { key } from './utils'
 import { FolderSystem } from './mock'
 
+interface CommandList {
+  [key: string]:
+  { (): void } | { (arg: string): void }
+}
 function App() {
-  const [folderSysteam, setFolderSysteam] = useState(new Map(Object.entries(FolderSystem)))
   const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [changeCount, setChangeCount] = useState<number>(0)
+  const [currentId, setCurrentId] = useState<number>(0)
+  const [commandHistory, setCommandHistory] = useState<string[]>([])
+  const [folderSysteam, setFolderSysteam] = useState(new Map(Object.entries(FolderSystem)))
+  const [currentFolderId, setCurrentFolderId] = useState(0)
+  const [currentDirectory, setCurrentDirectory] = useState<string>('')
+
   const draggableRef = useRef(null)
 
   const [content, setContent] = useState<JSX.Element[]>(
@@ -17,6 +27,7 @@ function App() {
       onkeydown={(e: React.KeyboardEvent<HTMLInputElement>) => executeCommand(e, 0)}
     />,
     ])
+
   // 初始化 dragable 拖拽设置
   const options: DragOptions = {
     position,
@@ -30,21 +41,72 @@ function App() {
   const generateRow = (row: JSX.Element) => {
     setContent(s => [...s, row])
   }
+  const cat = () => {
+
+  }
+  const cd = () => {
+
+  }
+  const clear = () => {
+
+  }
+  const ls = () => {
+
+  }
+  // help 命令
+  const help = () => {
+    generateRow(<Help key={key()} />)
+  }
+
+  const mkdir = () => {
+
+  }
+  const touch = () => {
+
+  }
+
+  const commandList: CommandList = {
+    cat,
+    cd,
+    clear,
+    ls,
+    help,
+    mkdir,
+    touch,
+  }
+
   // 执行方法
   function executeCommand(event: React.KeyboardEvent<HTMLInputElement>, id: number) {
     const input = document.querySelector(`#terminal-input-${id}`) as HTMLInputElement
     const [cmd, args] = input.value.trim().split(' ')
-    if (event.key === 'ArrowUp')
-      alert(`ArrowUp,Command is  ${cmd} Args is ${args}`)
-
-    else if (event.key === 'ArrowDown')
-      alert(`ArrowDown,Command is  ${cmd} Args is ${args}`)
-
-    else if (event.key === 'Tab')
-      alert(`Tab,Command is  ${cmd} Args is ${args}`)
-
-    else if (event.key === 'Enter')
-      alert(`Enter,Command is  ${cmd} Args is ${args}`)
+    if (event.key === 'ArrowUp') {
+    }
+    else if (event.key === 'ArrowDown') {
+    }
+    else if (event.key === 'Tab') {
+    }
+    else if (event.key === 'Enter') {
+      // 将新输入 command 加入 commandHistory 中
+      const newArr = commandHistory
+      newArr.push(input.value.trim())
+      setCommandHistory(newArr)
+      // 如果输入 command 符合就执行
+      if (cmd && Object.keys(commandList).includes(cmd))
+        commandList[cmd](args)
+      else if (cmd !== '')
+        generateRow(<CommandNotFound key={key()} command={input.value.trim()} />)
+      // 每次无论 command 符不符合，都需要生成一行新的 Row,并且 curentId++
+      setCurrentId(id => id + 1)
+      setTimeout(() => {
+        generateRow(
+        <Row
+          key={key()}
+          id={commandHistory.length}
+          onkeydown={(e: React.KeyboardEvent<HTMLInputElement>) => executeCommand(e, commandHistory.length)}
+        />,
+        )
+      }, 100)
+    }
   }
 
   return (
