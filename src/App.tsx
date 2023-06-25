@@ -70,8 +70,15 @@ function App() {
   const generateRow = (row: JSX.Element) => {
     setContent(s => [...s, row])
   }
-  const cat = () => {
-
+  // cat 命令
+  const cat = (arg = '') => {
+    // 获取当前目录下 childIds 进行遍历
+    const ids = getStorage(CURRENTCHILDIDS)
+    ids.map((id: number) => {
+      const item = folderSysteam.get(`${id}`) as FolderSysteamType
+      // 生成 title 为 arg 文件的 content Row 行
+      return item.title === arg ? generateRow(<div key={key()}>{item.content}</div> as JSX.Element) : ''
+    })
   }
   const searchFile = (arg: string) => {
     // 对输入做一个优化，例如文件夹名为 Desktop,只要我们输入'Desktop'|'desktop'|'DESKTOP'都行
@@ -110,8 +117,12 @@ function App() {
     // 否则返回 NoSuchFileOrDirectory
     else { generateRow(<NoSuchFileOrDirectory key={key()} command={arg}/>) }
   }
+  // clear 命令
   const clear = () => {
-
+    setContent([])
+    // 清空 input 框内容
+    const input = document.querySelector('#terminal-input-0') as HTMLInputElement
+    input.value = ''
   }
   // ls 命令
   const ls = () => {
