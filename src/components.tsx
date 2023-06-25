@@ -1,5 +1,34 @@
 import { Minimize2, Minus, X } from 'lucide-react'
 
+interface RowProps {
+  id: number
+  onkeydown: (e: React.KeyboardEvent<HTMLInputElement>) => void
+}
+const Row: React.FC<RowProps> = ({ id, onkeydown }) => {
+  return (
+    <div className='flex flex-col w-full h-12'>
+      <div>
+        <span className="mr-2 text-yellow-400">funnycoder</span>
+        <span className="mr-2 text-green-400">@macbook-pro</span>
+        <span className="mr-2 text-blue-400">~{}</span>
+        <span id={`terminal-currentDirectory-${id}`} className="mr-2 text-blue-400"></span>
+      </div>
+      <div className='flex'>
+        <span className="mr-2 text-pink-400">$</span>
+        <input
+          type="text"
+          id={`terminal-input-${id}`}
+          autoComplete="off"
+          autoFocus={true}
+          className="flex-1 px-1 text-white bg-transparent outline-none"
+          onKeyDown={onkeydown}
+        />
+      </div>
+
+    </div>
+  )
+}
+
 function TrafficLight() {
   return (
   <div className='bg-transparent'>
@@ -29,4 +58,4 @@ function BottomBar() {
   )
 }
 
-export { TrafficLight, BottomBar }
+export { TrafficLight, BottomBar, Row }
